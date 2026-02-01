@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YT Summary Pro</title>
+    <style>
+        :root {
+            --primary: #ff0000;
+            --dark: #1a1a1a;
+            --light: #f4f4f4;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1 { color: var(--dark); text-align: center; }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            outline: none;
+        }
+        button {
+            padding: 12px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:disabled { background: #ccc; }
+        #result {
+            margin-top: 30px;
+            line-height: 1.6;
+            white-space: pre-wrap; /* Maintains AI formatting */
+            color: #333;
+        }
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>YouTube Summarizer 🚀</h1>
+    <p style="text-align: center; color: #666;">Paste a link and get a summary in seconds.</p>
+    
+    <div class="input-group">
+        <input type="text" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
+        <button id="btn" onclick="getSummary()">Summarize</button>
+    </div>
+
+    <div id="loader" class="loader">Reading video transcript and thinking...</div>
+    <div id="result"></div>
+</div>
+
+<script>
+    async function getSummary() {
+        const urlInput = document.getElementById('youtubeUrl');
+        const resultDiv = document.getElementById('result');
+        const loader = document.getElementById('loader');
+        const btn = document.getElementById('btn');
+
+        if (!urlInput.value) return alert("Please paste a URL!");
+
+        // UI State: Loading
+        resultDiv.innerText = "";
+        loader.style.display = "block";
+        btn.disabled = true;
+
+        try {
+            // This calls your Python API in the /api/ folder
+            const response = await fetch(`/api/summarize?url=${encodeURIComponent(urlInput.value)}`);
+            const data = await response.json();
+
+            if (data.error) {
+                resultDiv.innerHTML = `<span style="color:red">Error: ${data.error}</span>`;
+            } else {
+                resultDiv.innerText = data.summary;
+            }
+        } catch (err) {
+            resultDiv.innerText = "Failed to connect to the server.";
+        } finally {
+            loader.style.display = "none";
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
